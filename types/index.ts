@@ -19,8 +19,9 @@ export interface Movie {
 
 export interface Location {
   id: number;
-  name: string;
+  city: string;
   icon: string;
+  popular: boolean;
 }
 
 export interface Theatre {
