@@ -15,6 +15,9 @@ export interface Movie {
   rating: number;
   votes: string;
   genre: string;
+  genres?: string[];
+  description: string;
+  cast?: string[];
 }
 
 export interface Location {

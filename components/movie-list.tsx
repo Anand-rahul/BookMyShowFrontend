@@ -1,19 +1,62 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Movie } from "@/types";
+import { getMovies, getMoviesByLocation } from "@/services/api";
 import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
+import { useCity } from "@/contexts/CityContext";
 
-interface MovieListProps {
-  movies: Movie[];
-}
+export default function MovieList() {
+  const cityContext = useCity();
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-export default function MovieList({ movies }: MovieListProps) {
-  if (!Array.isArray(movies) || movies.length === 0) {
-    return <div>No movies available at the moment.</div>;
+  const fetchMovies = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      let fetchedMovies;
+      if (cityContext.isInitialLoad) {
+        fetchedMovies = await getMovies();
+      } else {
+        fetchedMovies = await getMoviesByLocation(cityContext.selectedCity!);
+      }
+      console.log("Fetched movies:", fetchedMovies);
+      setMovies(fetchedMovies);
+    } catch (error) {
+      console.error("Failed to fetch movies:", error);
+      setError("Failed to load movies. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMovies();
+  }, [cityContext.selectedCity, cityContext.isInitialLoad]);
+
+  if (isLoading) {
+    return <div className="text-center py-8">Loading movies...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center py-8 text-red-500">{error}</div>;
+  }
+
+  if (movies.length === 0) {
+    return (
+      <div className="text-center py-8">
+        No movies available
+        {cityContext.selectedCity ? ` for ${cityContext.selectedCity}` : ""}.
+      </div>
+    );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 justify-center p-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
       {movies.map((movie) => (
         <Link
           key={movie.movieId}
@@ -22,7 +65,7 @@ export default function MovieList({ movies }: MovieListProps) {
         >
           <div className="relative aspect-[2/3] overflow-hidden rounded-lg">
             <Image
-              src={`/placeholder.svg?height=450&width=300`}
+              src={movie.posterUrl || `/placeholder.svg?height=450&width=300`}
               alt={movie.movieName}
               className="object-cover transition-transform group-hover:scale-105"
               fill

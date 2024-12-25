@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
@@ -40,7 +40,7 @@ export default function CitySelector({
 
   const popularCities = filteredCities.filter((city) => city.popular);
   const otherCities = filteredCities.filter((city) => !city.popular);
-
+  // useEffect(() => {}, [filteredCities]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[680px] max-h-[85vh] overflow-y-auto">

@@ -49,3 +49,13 @@ export async function getLocations(): Promise<Location[]> {
   const response = await fetch(`${API_BASE_URL}/locations/all`);
   return response.json();
 }
+
+export async function getMovieById(movieId: number): Promise<Movie> {
+  const response = await fetch(`${API_BASE_URL}/movies/${movieId}`);
+  return response.json();
+}
+
+export async function getSimilarMovies(movieId: number): Promise<Movie[]> {
+  const response = await fetch(`${API_BASE_URL}/movies/${movieId}/similar`);
+  return response.json();
+}

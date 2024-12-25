@@ -5,22 +5,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { use, useState, useEffect } from "react";
 import { Location } from "@/types";
 import { getLocations } from "@/services/api";
 import CitySelector from "./city-selector";
+import { useCity } from "@/contexts/CityContext";
 
 export default function Header() {
-  const [selectedCity, setSelectedCity] = useState("Select City");
+  const cityContext = useCity();
   const [isOpen, setIsOpen] = useState(false);
   const [locations, setLocations] = useState<Location[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,7 +23,6 @@ export default function Header() {
       try {
         const fetchedLocations = await getLocations();
         setLocations(fetchedLocations);
-        console.log(fetchedLocations);
         return;
       } catch (error) {
         console.error(`Attempt ${i + 1} failed:`, error);
@@ -58,20 +51,19 @@ export default function Header() {
   };
 
   const handleCitySelect = (location: Location) => {
-    setSelectedCity(location.city);
+    cityContext.setSelectedCity(location.city);
+    cityContext.setIsInitialLoad(false);
+    console.log("Selected city:", cityContext.selectedCity);
     setIsOpen(false);
   };
-
-  const filteredLocations = locations.filter((location) =>
-    location?.city?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  useEffect(() => {
+    console.log("in header  " + cityContext.selectedCity);
+  }, [cityContext.isInitialLoad]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      {/* Main header content */}
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
           <Link href="/" className="flex-shrink-0">
             <Image
               src="/logo.svg"
@@ -81,8 +73,6 @@ export default function Header() {
               className="h-8 w-auto"
             />
           </Link>
-
-          {/* Search and City Selection */}
           <div className="flex items-center space-x-4 flex-1 max-w-2xl mx-8">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -96,17 +86,13 @@ export default function Header() {
               onClick={() => handleOpenChange(true)}
               className="min-w-[120px] whitespace-nowrap"
             >
-              {selectedCity}
+              {cityContext.selectedCity || "Select City"}
             </Button>
           </div>
-
-          {/* Sign In Button */}
           <div className="flex-shrink-0">
             <Button variant="ghost">Sign In</Button>
           </div>
         </div>
-
-        {/* Navigation */}
         <nav className="flex items-center justify-start h-12 -mb-px">
           <div className="flex space-x-8">
             {[
@@ -128,7 +114,6 @@ export default function Header() {
           </div>
         </nav>
       </div>
-
       <CitySelector
         open={isOpen}
         onOpenChange={handleOpenChange}
