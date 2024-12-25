@@ -8,7 +8,6 @@ import { useEffect } from "react";
 export default function Home() {
   const cityContext = useCity();
   useEffect(() => {
-    //reRender MovieList component when selectedCity or isInitialLoad changes
     console.log("in home  " + cityContext.selectedCity);
   }, [cityContext.selectedCity, cityContext.isInitialLoad]);
   return (

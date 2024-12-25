@@ -8,7 +8,7 @@ export default function MovieCard({ movie }: { movie: Movie }) {
     <Link href={`/movies/${movie.movieId}`} className="group">
       <div className="relative aspect-[2/3] overflow-hidden rounded-lg">
         <Image
-          src={movie.posterUrl}
+          src={movie.posterUrl || `/placeholder.svg?height=450&width=300`}
           alt={movie.movieName}
           className="object-cover transition-transform group-hover:scale-105"
           fill

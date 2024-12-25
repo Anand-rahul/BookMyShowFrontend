@@ -51,11 +51,23 @@ export async function getLocations(): Promise<Location[]> {
 }
 
 export async function getMovieById(movieId: number): Promise<Movie> {
-  const response = await fetch(`${API_BASE_URL}/movies/${movieId}`);
+  const response = await fetch(`${API_BASE_URL}/movies/id/${movieId}`);
   return response.json();
 }
 
 export async function getSimilarMovies(movieId: number): Promise<Movie[]> {
   const response = await fetch(`${API_BASE_URL}/movies/${movieId}/similar`);
+  return response.json();
+}
+
+export async function getTheatresByMovieAndCity(
+  city: string,
+  movieName: string
+): Promise<Theatre[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/theatres/fetch-by-city?city=${encodeURIComponent(
+      city
+    )}&movie=${encodeURIComponent(movieName)}`
+  );
   return response.json();
 }

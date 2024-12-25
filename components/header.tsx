@@ -12,7 +12,7 @@ import CitySelector from "./city-selector";
 import { useCity } from "@/contexts/CityContext";
 
 export default function Header() {
-  const cityContext = useCity();
+  const cityContext =  useCity();
   const [isOpen, setIsOpen] = useState(false);
   const [locations, setLocations] = useState<Location[]>([]);
   const [isLoading, setIsLoading] = useState(false);

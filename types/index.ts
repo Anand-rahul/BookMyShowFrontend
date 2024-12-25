@@ -33,10 +33,12 @@ export interface Theatre {
   city: string;
   screens: Screen[];
   shows: Show[];
+  cancellationAvailable: boolean;
 }
 
 export interface Screen {
   screenId: number;
+  screenType: string;
   seats: Seat[];
 }
 
