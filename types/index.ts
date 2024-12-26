@@ -44,8 +44,13 @@ export interface Screen {
 
 export interface Seat {
   seatId: number;
-  row: number;
   seatCategory: "SILVER" | "GOLD" | "PLATINUM";
+  id: string;
+  row: string;
+  seatNumber: string;
+  priceCategory: string;
+  status: string;
+  price: number;
 }
 
 export interface Show {
@@ -72,4 +77,15 @@ export interface BookingResponse {
   bookingStatus: string;
   showTime: string;
   movieDuration: number;
+}
+
+export interface PriceCategory {
+  name: string;
+  price: number;
+  status: "filling" | "available";
+}
+
+export interface ShowDetails {
+  seats: Seat[];
+  priceCategories: PriceCategory[];
 }

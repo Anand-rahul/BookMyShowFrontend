@@ -6,6 +6,7 @@ import {
   Location,
   User,
   Seat,
+  PriceCategory,
 } from "@/types";
 
 const API_BASE_URL = "http://localhost:8080";
@@ -24,11 +25,6 @@ export async function getTheatresByCity(city: string): Promise<Theatre[]> {
   const response = await fetch(
     `${API_BASE_URL}/theatres/fetch-by-city?city=${city}`
   );
-  return response.json();
-}
-
-export async function getAvailableSeats(showId: number): Promise<Seat[]> {
-  const response = await fetch(`${API_BASE_URL}/shows/seats/${showId}`);
   return response.json();
 }
 
@@ -69,5 +65,28 @@ export async function getTheatresByMovieAndCity(
       city
     )}&movie=${encodeURIComponent(movieName)}`
   );
+  return response.json();
+}
+
+export async function getSeatsForShow(showId: number): Promise<Seat[]> {
+  const response = await fetch(`${API_BASE_URL}/shows/${showId}/seats`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch seats");
+  }
+  return response.json();
+}
+
+export async function getShowDetails(
+  showId: number
+): Promise<{ seats: Seat[]; priceCategories: PriceCategory[] }> {
+  const response = await fetch(`${API_BASE_URL}/shows/${showId}/details`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch show details");
+  }
+  return response.json();
+}
+
+export async function getAvailableSeats(showId: number): Promise<Seat[]> {
+  const response = await fetch(`${API_BASE_URL}/shows/seats/${showId}`);
   return response.json();
 }
