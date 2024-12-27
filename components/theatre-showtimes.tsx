@@ -62,15 +62,14 @@ export default function TheatreShowtimes({ movieName }: TheatreShowtimesProps) {
     setSeatCountDialogOpen(true);
     try {
       const showDetails = await getShowDetails(show.showId);
-      // Add status to seats for UI state
+      // Map seats with their actual booking status based on bookedSeatIds
       const seatsWithStatus = showDetails.seats.map((seat) => ({
         ...seat,
-        status:
-          Math.random() > 0.8
-            ? "sold"
-            : Math.random() > 0.7
-            ? "bestseller"
-            : "available",
+        status: show.bookedSeatIds.includes(seat.seatId)
+          ? "sold"
+          : seat.seatCategory === "GOLD"
+          ? "bestseller"
+          : "available",
       }));
       setSeats(seatsWithStatus);
       setPriceCategories(showDetails.priceCategories);

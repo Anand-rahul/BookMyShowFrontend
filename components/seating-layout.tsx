@@ -6,10 +6,10 @@ import { cn } from "@/lib/utils";
 import { Seat } from "@/types";
 
 export interface SeatingLayoutProps {
-    seats: Seat[];
-    maxSeats: number;
-    onSeatSelect: (selectedSeats: Seat[]) => void;
-  }
+  seats: Seat[];
+  maxSeats: number;
+  onSeatSelect: (selectedSeats: Seat[]) => void;
+}
 
 export default function SeatingLayout({
   seats,
@@ -43,12 +43,12 @@ export default function SeatingLayout({
     }
   };
 
-  // Group seats by price category
+  // Group seats by price category and row
   const groupedSeats = seats.reduce((acc, seat) => {
     if (!acc[seat.priceCategory]) {
       acc[seat.priceCategory] = {};
     }
-    const rowKey = `Row ${seat.row}`;
+    const rowKey = seat.seatNumber.charAt(0); // Get the row letter (A, B, etc.)
     if (!acc[seat.priceCategory][rowKey]) {
       acc[seat.priceCategory][rowKey] = [];
     }
@@ -62,26 +62,38 @@ export default function SeatingLayout({
         {Object.entries(groupedSeats).map(([category, rows]) => (
           <div key={category} className="space-y-2">
             <h3 className="text-sm text-muted-foreground">
-              Rs. {seats.find((s) => s.priceCategory === category)?.price} {category}
+              Rs. {seats.find((s) => s.priceCategory === category)?.price}{" "}
+              {category}
+              {category === "Premium" && " - Gold"}
+              {category === "Economy" && " - Silver"}
             </h3>
             <div className="space-y-2">
               {Object.entries(rows).map(([row, seats]) => (
                 <div key={row} className="flex items-center gap-2">
-                  <span className="w-6 text-sm text-muted-foreground">{row}</span>
+                  <span className="w-6 text-sm text-muted-foreground">
+                    {row}
+                  </span>
                   <div className="flex gap-1">
-                    {seats.map((seat) => (
-                      <button
-                        key={seat.seatId}
-                        onClick={() => handleSeatClick(seat)}
-                        disabled={seat.status === "sold"}
-                        className={cn(
-                          "w-8 h-8 rounded border text-sm font-medium transition-colors",
-                          getSeatColor(seat)
-                        )}
-                      >
-                        {seat.seatNumber}
-                      </button>
-                    ))}
+                    {seats
+                      .sort(
+                        (a, b) =>
+                          parseInt(a.seatNumber.slice(1)) -
+                          parseInt(b.seatNumber.slice(1))
+                      )
+                      .map((seat) => (
+                        <button
+                          key={seat.seatId}
+                          onClick={() => handleSeatClick(seat)}
+                          disabled={seat.status === "sold"}
+                          className={cn(
+                            "w-8 h-8 rounded border text-sm font-medium transition-colors",
+                            getSeatColor(seat)
+                          )}
+                        >
+                          {seat.seatNumber.slice(1)}{" "}
+                          {/* Show only the number part */}
+                        </button>
+                      ))}
                   </div>
                 </div>
               ))}
@@ -97,7 +109,7 @@ export default function SeatingLayout({
       <div className="mt-6 flex justify-center gap-6">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-yellow-100 border border-yellow-200" />
-          <span className="text-sm">Bestseller</span>
+          <span className="text-sm">Gold (Premium)</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-white border" />
@@ -115,7 +127,10 @@ export default function SeatingLayout({
 
       {selectedSeats.length > 0 && (
         <div className="mt-6 flex justify-center">
-          <Button onClick={() => onSeatSelect(selectedSeats)}>
+          <Button
+            onClick={() => onSeatSelect(selectedSeats)}
+            className="bg-[#1a2236] hover:bg-[#1a2236]/90"
+          >
             Confirm {selectedSeats.length} Seats
           </Button>
         </div>
@@ -123,4 +138,3 @@ export default function SeatingLayout({
     </div>
   );
 }
-

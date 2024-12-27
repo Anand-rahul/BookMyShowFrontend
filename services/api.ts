@@ -6,87 +6,130 @@ import {
   Location,
   User,
   Seat,
+  Show,
   PriceCategory,
 } from "@/types";
 
 const API_BASE_URL = "http://localhost:8080";
 
-export async function getMovies(): Promise<Movie[]> {
-  const response = await fetch(`${API_BASE_URL}/movies/all`);
+let authToken: string | null = null;
+
+const setAuthToken = (token: string) => {
+  authToken = token;
+};
+
+const clearAuthToken = () => {
+  authToken = null;
+};
+
+const getAuthHeaders = () => {
+  return authToken ? { Authorization: `Bearer ${authToken}` } : {};
+};
+
+async function apiCall(endpoint: string, options: RequestInit = {}) {
+  const headers = new Headers(options.headers);
+  if (authToken) {
+    console.log("authToken", authToken);
+    headers.set("Authorization", `Bearer ${authToken}`);
+  }
+
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`API call failed: ${response.statusText}`);
+  }
+
   return response.json();
+}
+
+export async function signUp(userData: {
+  userName: string;
+  email: string;
+  password: string;
+  mobile?: string;
+}): Promise<User> {
+  return apiCall("/users", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(userData),
+  });
+}
+
+export async function signIn(credentials: {
+  userName: string;
+  password: string;
+}): Promise<{ token: string; user: User }> {
+  const response = await apiCall("/auth/signin", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(credentials),
+  });
+
+  setAuthToken(response.token);
+  return response;
+}
+
+export async function signOut(): Promise<void> {
+  clearAuthToken();
+  // You might want to call a signout endpoint here if your backend requires it
+}
+
+export async function getMovies(): Promise<Movie[]> {
+  return apiCall("/movies/all");
 }
 
 export async function getMoviesByLocation(city: string): Promise<Movie[]> {
-  const response = await fetch(`${API_BASE_URL}/movies/${city}`);
-  return response.json();
+  return apiCall(`/movies/${city}`);
 }
 
 export async function getTheatresByCity(city: string): Promise<Theatre[]> {
-  const response = await fetch(
-    `${API_BASE_URL}/theatres/fetch-by-city?city=${city}`
-  );
-  return response.json();
+  return apiCall(`/theatres/fetch-by-city?city=${city}`);
+}
+
+export async function getSeatsForShow(showId: number): Promise<Seat[]> {
+  return apiCall(`/shows/${showId}/seats`);
 }
 
 export async function createBooking(
   bookingRequest: BookingRequest
 ): Promise<BookingResponse> {
-  const response = await fetch(`${API_BASE_URL}/bookings`, {
+  return apiCall("/bookings", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(bookingRequest),
   });
-  return response.json();
 }
 
 export async function getLocations(): Promise<Location[]> {
-  const response = await fetch(`${API_BASE_URL}/locations/all`);
-  return response.json();
+  return apiCall("/locations/all");
 }
 
 export async function getMovieById(movieId: number): Promise<Movie> {
-  const response = await fetch(`${API_BASE_URL}/movies/id/${movieId}`);
-  return response.json();
+  return apiCall(`/movies/id/${movieId}`);
 }
 
 export async function getSimilarMovies(movieId: number): Promise<Movie[]> {
-  const response = await fetch(`${API_BASE_URL}/movies/${movieId}/similar`);
-  return response.json();
+  return apiCall(`/movies/${movieId}/similar`);
 }
 
 export async function getTheatresByMovieAndCity(
   city: string,
   movieName: string
 ): Promise<Theatre[]> {
-  const response = await fetch(
-    `${API_BASE_URL}/theatres/fetch-by-city?city=${encodeURIComponent(
+  return apiCall(
+    `/theatres/fetch-by-city?city=${encodeURIComponent(
       city
     )}&movie=${encodeURIComponent(movieName)}`
   );
-  return response.json();
-}
-
-export async function getSeatsForShow(showId: number): Promise<Seat[]> {
-  const response = await fetch(`${API_BASE_URL}/shows/${showId}/seats`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch seats");
-  }
-  return response.json();
 }
 
 export async function getShowDetails(
   showId: number
 ): Promise<{ seats: Seat[]; priceCategories: PriceCategory[] }> {
-  const response = await fetch(`${API_BASE_URL}/shows/${showId}/details`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch show details");
-  }
-  return response.json();
+  return apiCall(`/shows/${showId}/details`);
 }
 
-export async function getAvailableSeats(showId: number): Promise<Seat[]> {
-  const response = await fetch(`${API_BASE_URL}/shows/seats/${showId}`);
-  return response.json();
-}
+export { setAuthToken, clearAuthToken };

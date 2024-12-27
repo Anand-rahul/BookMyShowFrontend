@@ -1,22 +1,24 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Search } from 'lucide-react';
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { use, useState, useEffect } from "react";
+import { useState } from "react";
 import { Location } from "@/types";
 import { getLocations } from "@/services/api";
 import CitySelector from "./city-selector";
 import { useCity } from "@/contexts/CityContext";
+import { SignInDialog } from "./sign-in-dailog";
 
 export default function Header() {
-  const cityContext =  useCity();
+  const cityContext = useCity();
   const [isOpen, setIsOpen] = useState(false);
   const [locations, setLocations] = useState<Location[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
 
   const fetchLocationsWithRetry = async (maxRetries = 3) => {
     for (let i = 0; i < maxRetries; i++) {
@@ -53,12 +55,8 @@ export default function Header() {
   const handleCitySelect = (location: Location) => {
     cityContext.setSelectedCity(location.city);
     cityContext.setIsInitialLoad(false);
-    console.log("Selected city:", cityContext.selectedCity);
     setIsOpen(false);
   };
-  useEffect(() => {
-    console.log("in header  " + cityContext.selectedCity);
-  }, [cityContext.isInitialLoad]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -90,19 +88,12 @@ export default function Header() {
             </Button>
           </div>
           <div className="flex-shrink-0">
-            <Button variant="ghost">Sign In</Button>
+            <Button variant="ghost" onClick={() => setIsSignInOpen(true)}>Sign In</Button>
           </div>
         </div>
         <nav className="flex items-center justify-start h-12 -mb-px">
           <div className="flex space-x-8">
-            {[
-              "Movies",
-              "Stream",
-              "Events",
-              "Plays",
-              "Sports",
-              "Activities",
-            ].map((item) => (
+            {["Movies", "Stream", "Events", "Plays", "Sports", "Activities"].map((item) => (
               <Link
                 key={item}
                 href={`/${item.toLowerCase()}`}
@@ -123,6 +114,8 @@ export default function Header() {
         error={error}
         onRetry={() => handleOpenChange(true)}
       />
+      <SignInDialog open={isSignInOpen} onOpenChange={setIsSignInOpen} />
     </header>
   );
 }
+

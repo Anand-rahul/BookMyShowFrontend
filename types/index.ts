@@ -1,9 +1,9 @@
 export interface User {
   id: number;
-  mobile: string;
   userName: string;
-  emailId: string;
-  password: string;
+  email: string;
+  mobile?: string;
+  password?: string; // We don't want to expose this in the frontend, but it's part of the backend model
 }
 
 export interface Movie {

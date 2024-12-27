@@ -17,12 +17,13 @@ export default function MoviePage({ params }: { params: { movieId: string } }) {
     const fetchMovieData = async () => {
       try {
         const movieData = await getMovieById(parseInt(params.movieId));
+        console.log("movieData : " + JSON.stringify(movieData));
         setMovie(movieData);
-        const similar = await getSimilarMovies(parseInt(params.movieId));
-        setSimilarMovies(similar);
+        // const similar = await getSimilarMovies(parseInt(params.movieId));
+        // setSimilarMovies(similar);
       } catch (error) {
         setError("Failed to load movie details");
-        console.error(error);
+        console.error("error : " + error);
       } finally {
         setIsLoading(false);
       }
