@@ -1,7 +1,7 @@
 export interface User {
-  id: number;
+  id?: number;
   userName: string;
-  email: string;
+  emailId: string;
   mobile?: string;
   password?: string; // We don't want to expose this in the frontend, but it's part of the backend model
 }
@@ -90,4 +90,16 @@ export interface PriceCategory {
 export interface ShowDetails {
   seats: Seat[];
   priceCategories: PriceCategory[];
+}
+
+export interface UserRegistrationRequest {
+  userName: string;
+  password: string;
+  mobile: string;
+  emailId: string;
+}
+
+export interface UserSignInRequest {
+  userName: string;
+  password: string;
 }

@@ -10,8 +10,9 @@ import { Location } from "@/types";
 import { getLocations } from "@/services/api";
 import CitySelector from "./city-selector";
 import { useCity } from "@/contexts/CityContext";
-import { SignInDialog } from "./sign-in-dailog";
+import { SignInDialog } from "./sign-in-dailog"; //./sign-in-dialog
 import { useAuth } from "@/contexts/AuthContext";
+import { ThemeToggle } from "./theme-toggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -52,7 +53,7 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-card/80 backdrop-blur supports-[backdrop-filter]:bg-card/80">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex-shrink-0">
@@ -69,24 +70,23 @@ export default function Header() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search for Movies, Events, Plays, Sports and Activities"
-                className="pl-10 w-full"
+                className="pl-10 w-full bg-background/50"
               />
             </div>
             <Button
               variant="outline"
               onClick={() => handleOpenChange(true)}
-              className="min-w-[120px] whitespace-nowrap"
+              className="min-w-[120px] whitespace-nowrap bg-background/50"
             >
               {cityContext.selectedCity || "Select City"}
             </Button>
           </div>
-          <div className="flex-shrink-0">
+          <div className="flex items-center space-x-4">
+            <ThemeToggle />
             {isAuthenticated && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost">
-                    Hello, {user?.userName || "User"}
-                  </Button>
+                  <Button variant="ghost">Hello, {user.userName}</Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={logout}>Sign Out</DropdownMenuItem>

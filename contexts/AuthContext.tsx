@@ -1,14 +1,14 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { setAuthToken, clearAuthToken } from "@/services/api";
-import { User } from "@/types";
+import { signIn, signOut } from "@/services/api";
+import { User, UserSignInRequest } from "@/types";
 
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
-  login: (token: string, user: User) => void;
-  logout: () => void;
+  login: (credentials: UserSignInRequest) => Promise<void>;
+  logout: () => Promise<void>;
   googleLogin: () => void;
 }
 
@@ -27,7 +27,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (data.isAuthenticated && data.user) {
             setIsAuthenticated(true);
             setUser(data.user);
-            setAuthToken(data.token);
           }
         }
       } catch (error) {
@@ -38,15 +37,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth();
   }, []);
 
-  const login = (token: string, user: User) => {
-    setAuthToken(token);
-    setIsAuthenticated(true);
-    setUser(user);
+  const login = async (credentials: UserSignInRequest) => {
+    try {
+      const authenticatedUser = await signIn(credentials);
+      setIsAuthenticated(true);
+      setUser(authenticatedUser);
+    } catch (error) {
+      console.error("Login failed:", error);
+      throw error;
+    }
   };
 
   const logout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    clearAuthToken();
+    await signOut();
     setIsAuthenticated(false);
     setUser(null);
   };

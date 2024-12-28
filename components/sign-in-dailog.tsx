@@ -12,9 +12,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import { signIn, signUp } from "@/services/api";
+import { signUp } from "@/services/api";
 import { useAuth } from "@/contexts/AuthContext";
-import { User } from "@/types";
+import { UserRegistrationRequest, UserSignInRequest } from "@/types";
 
 interface SignInDialogProps {
   open: boolean;
@@ -31,29 +31,48 @@ export function SignInDialog({ open, onOpenChange }: SignInDialogProps) {
     setIsLoading(true);
 
     const formData = new FormData(event.currentTarget);
-    const userName = formData.get("userName") as string;
-    const password = formData.get("password") as string;
-    const email = formData.get("email") as string;
-    const mobile = formData.get("mobile") as string;
     const isSignUp = (event.nativeEvent as any).submitter.name === "sign-up";
 
     try {
       if (isSignUp) {
-        const user = await signUp({ userName, email, password, mobile });
+        const registrationData: UserRegistrationRequest = {
+          userName: formData.get("userName") as string,
+          password: formData.get("password") as string,
+          mobile: formData.get("mobile") as string,
+          emailId: formData.get("email") as string,
+        };
+
+        await signUp(registrationData);
         toast({
-          title: "Account created",
-          description: "Please sign in with your new account",
+          title: "Account created successfully",
+          description: "Please sign in with your credentials",
         });
+
+        // Switch to sign in tab after successful registration
+        const tabsList = document.querySelector(
+          '[role="tablist"]'
+        ) as HTMLElement;
+        const signinTab = tabsList?.querySelector(
+          '[value="signin"]'
+        ) as HTMLElement;
+        signinTab?.click();
       } else {
-        const { token, user } = await signIn({ userName, password });
-        login(token, user);
+        const signInData: UserSignInRequest = {
+          userName: formData.get("userName") as string,
+          password: formData.get("password") as string,
+        };
+
+        await login(signInData);
         toast({ title: "Signed in successfully" });
         onOpenChange(false);
       }
     } catch (error) {
+      console.error("Auth error:", error);
       toast({
         title: "Error",
-        description: "An error occurred. Please try again.",
+        description: isSignUp
+          ? "Failed to create account. Please try again."
+          : "Invalid credentials. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -117,7 +136,14 @@ export function SignInDialog({ open, onOpenChange }: SignInDialogProps) {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="signup-mobile">Mobile</Label>
-                <Input id="signup-mobile" name="mobile" type="tel" />
+                <Input
+                  id="signup-mobile"
+                  name="mobile"
+                  type="tel"
+                  pattern="[0-9]{10}"
+                  placeholder="10-digit mobile number"
+                  required
+                />
               </div>
               <Button
                 type="submit"
