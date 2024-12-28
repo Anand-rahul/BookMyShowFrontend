@@ -15,7 +15,6 @@ export async function GET(req: NextRequest) {
       id: string;
       userName: string;
       email: string;
-      picture?: string;
     };
 
     return NextResponse.json({
@@ -24,9 +23,7 @@ export async function GET(req: NextRequest) {
         id: decoded.id,
         userName: decoded.userName,
         email: decoded.email,
-        picture: decoded.picture,
       },
-      token,
     });
   } catch (error) {
     return NextResponse.json({ isAuthenticated: false }, { status: 401 });

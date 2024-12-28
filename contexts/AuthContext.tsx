@@ -21,13 +21,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch("/api/auth/check");
+        const response = await fetch("/api/auth/check", {
+          credentials: "include",
+        });
         if (response.ok) {
           const data = await response.json();
-          if (data.isAuthenticated && data.user) {
-            setIsAuthenticated(true);
-            setUser(data.user);
-          }
+          setIsAuthenticated(true);
+          setUser(data.user);
         }
       } catch (error) {
         console.error("Auth check failed:", error);
@@ -39,9 +39,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (credentials: UserSignInRequest) => {
     try {
-      const authenticatedUser = await signIn(credentials);
+      const user = await signIn(credentials);
       setIsAuthenticated(true);
-      setUser(authenticatedUser);
+      setUser(user);
     } catch (error) {
       console.error("Login failed:", error);
       throw error;

@@ -19,6 +19,7 @@ export default function MoviePage({ params }: { params: { movieId: string } }) {
       try {
         const movieData = await getMovieById(parseInt(params.movieId));
         setMovie(movieData);
+        console.log(movieData);
         // const similar = await getSimilarMovies(parseInt(params.movieId));
         // setSimilarMovies(similar);
       } catch (error) {

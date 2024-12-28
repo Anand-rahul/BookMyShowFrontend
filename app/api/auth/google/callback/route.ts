@@ -78,12 +78,19 @@ export async function GET(req: NextRequest) {
     // Structure the user data to match our User type
     const user = {
       id: googleUser.id,
-      userName: googleUser.name, // Use the name as userName
+      userName: googleUser.name,
       email: googleUser.email,
-      picture: googleUser.picture,
     };
 
-    const token = jwt.sign(user, JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign(
+      {
+        id: user.id,
+        userName: user.userName,
+        email: user.email,
+      },
+      JWT_SECRET,
+      { expiresIn: "1h" }
+    );
 
     const response = NextResponse.redirect(new URL("/", BASE_URL));
     response.cookies.set("jwtToken", token, {
