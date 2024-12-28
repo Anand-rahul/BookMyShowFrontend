@@ -11,8 +11,23 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { user: any };
-    return NextResponse.json({ isAuthenticated: true, user: decoded, token });
+    const decoded = jwt.verify(token, JWT_SECRET) as {
+      id: string;
+      userName: string;
+      email: string;
+      picture?: string;
+    };
+
+    return NextResponse.json({
+      isAuthenticated: true,
+      user: {
+        id: decoded.id,
+        userName: decoded.userName,
+        email: decoded.email,
+        picture: decoded.picture,
+      },
+      token,
+    });
   } catch (error) {
     return NextResponse.json({ isAuthenticated: false }, { status: 401 });
   }

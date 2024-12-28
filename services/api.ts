@@ -29,7 +29,6 @@ const getAuthHeaders = () => {
 async function apiCall(endpoint: string, options: RequestInit = {}) {
   const headers = new Headers(options.headers);
   if (authToken) {
-    console.log("authToken", authToken);
     headers.set("Authorization", `Bearer ${authToken}`);
   }
 
@@ -128,7 +127,7 @@ export async function getTheatresByMovieAndCity(
 
 export async function getShowDetails(
   showId: number
-): Promise<{ seats: Seat[]; priceCategories: PriceCategory[] }> {
+): Promise<{ show: Show; seats: Seat[]; priceCategories: PriceCategory[] }> {
   return apiCall(`/shows/${showId}/details`);
 }
 

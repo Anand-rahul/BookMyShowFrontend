@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from 'lucide-react';
+import { Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -11,30 +11,22 @@ import { getLocations } from "@/services/api";
 import CitySelector from "./city-selector";
 import { useCity } from "@/contexts/CityContext";
 import { SignInDialog } from "./sign-in-dailog";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function Header() {
   const cityContext = useCity();
+  const { isAuthenticated, user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [locations, setLocations] = useState<Location[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
-
-  const fetchLocationsWithRetry = async (maxRetries = 3) => {
-    for (let i = 0; i < maxRetries; i++) {
-      try {
-        const fetchedLocations = await getLocations();
-        setLocations(fetchedLocations);
-        return;
-      } catch (error) {
-        console.error(`Attempt ${i + 1} failed:`, error);
-        if (i === maxRetries - 1) {
-          throw error;
-        }
-        await new Promise((resolve) => setTimeout(resolve, 1000 * (i + 1)));
-      }
-    }
-  };
 
   const handleOpenChange = async (open: boolean) => {
     setIsOpen(open);
@@ -42,9 +34,10 @@ export default function Header() {
       setIsLoading(true);
       setError(null);
       try {
-        await fetchLocationsWithRetry();
+        const fetchedLocations = await getLocations();
+        setLocations(fetchedLocations);
       } catch (error) {
-        console.error("Failed to fetch locations after retries:", error);
+        console.error("Failed to fetch locations:", error);
         setError("Failed to load cities. Please try again later.");
       } finally {
         setIsLoading(false);
@@ -88,22 +81,24 @@ export default function Header() {
             </Button>
           </div>
           <div className="flex-shrink-0">
-            <Button variant="ghost" onClick={() => setIsSignInOpen(true)}>Sign In</Button>
+            {isAuthenticated && user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost">
+                    Hello, {user?.userName || "User"}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={logout}>Sign Out</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button variant="ghost" onClick={() => setIsSignInOpen(true)}>
+                Sign In
+              </Button>
+            )}
           </div>
         </div>
-        <nav className="flex items-center justify-start h-12 -mb-px">
-          <div className="flex space-x-8">
-            {["Movies", "Stream", "Events", "Plays", "Sports", "Activities"].map((item) => (
-              <Link
-                key={item}
-                href={`/${item.toLowerCase()}`}
-                className="text-sm font-medium hover:text-primary transition-colors px-1 py-2"
-              >
-                {item}
-              </Link>
-            ))}
-          </div>
-        </nav>
       </div>
       <CitySelector
         open={isOpen}
@@ -118,4 +113,3 @@ export default function Header() {
     </header>
   );
 }
-

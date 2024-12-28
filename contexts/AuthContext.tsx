@@ -20,12 +20,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const response = await fetch("/api/auth/check");
-      if (response.ok) {
-        const data = await response.json();
-        setIsAuthenticated(true);
-        setUser(data.user);
-        setAuthToken(data.token);
+      try {
+        const response = await fetch("/api/auth/check");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.isAuthenticated && data.user) {
+            setIsAuthenticated(true);
+            setUser(data.user);
+            setAuthToken(data.token);
+          }
+        }
+      } catch (error) {
+        console.error("Auth check failed:", error);
       }
     };
 

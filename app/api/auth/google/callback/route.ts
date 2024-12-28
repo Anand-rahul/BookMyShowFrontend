@@ -75,10 +75,11 @@ export async function GET(req: NextRequest) {
     const { id_token, access_token } = await getGoogleOAuthTokens(code);
     const googleUser = await getGoogleUser(id_token, access_token);
 
+    // Structure the user data to match our User type
     const user = {
       id: googleUser.id,
+      userName: googleUser.name, // Use the name as userName
       email: googleUser.email,
-      name: googleUser.name,
       picture: googleUser.picture,
     };
 

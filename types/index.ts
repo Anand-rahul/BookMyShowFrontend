@@ -29,6 +29,7 @@ export interface Location {
 
 export interface Theatre {
   theatreId: number;
+  name: string;
   address: string;
   city: string;
   screens: Screen[];
@@ -39,6 +40,7 @@ export interface Theatre {
 export interface Screen {
   screenId: number;
   screenType: string;
+  screenNumber: string;
   seats: Seat[];
 }
 
